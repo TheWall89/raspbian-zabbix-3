@@ -18,9 +18,16 @@ apt-get install -y mysql-server mysql-client libmysqlclient-dev \
                         fping libiksemel-dev libxml2-dev libsnmp-dev \
                         libssh2-1-dev libopenipmi-dev libcurl4-openssl-dev
 
-/usr/bin/mysqladmin -u root -preverse password 'LCq9LCFCNMZEqatm'
-mysql -h localhost -uroot -pLCq9LCFCNMZEqatm -P 3306 -s <<< 'CREATE DATABASE zabbix CHARACTER SET UTF8'
-mysql -h localhost -uroot -pLCq9LCFCNMZEqatm -P 3306 -s <<< 'GRANT ALL PRIVILEGES on zabbix.* to "zabbix"@"localhost" IDENTIFIED BY "drFJ7xx5MNTbqJ39"'
+printf "Type the password for user 'root' in mysql. Then press [ENTER]:"
+read root_pwd
+
+printf "\nType the password for user 'zabbix' in mysql. Then press [ENTER]:"
+read zabbix_pwd
+
+mysql -uroot -p$root_pwd <<QUERY_INPUT
+create database zabbix character set utf8 collate utf8_bin;
+grant all privileges on zabbix.* to zabbix@localhost identified by '$zabbix_pwd';
+QUERY_INPUT
 groupadd zabbix
 useradd -g zabbix zabbix
 mkdir -p /var/log/zabbix
@@ -30,9 +37,9 @@ mkdir -p /var/zabbix/externalscripts
 chown -R zabbix:zabbix /var/zabbix/
 tar -vzxf zabbix-*.tar.gz -C ~
 cd ~/zabbix-*/database/mysql
-mysql -uzabbix -pdrFJ7xx5MNTbqJ39 zabbix < schema.sql
-mysql -uzabbix -pdrFJ7xx5MNTbqJ39 zabbix < images.sql
-mysql -uzabbix -pdrFJ7xx5MNTbqJ39 zabbix < data.sql
+mysql -uzabbix -p$zabbix_pwd zabbix < schema.sql &&
+mysql -uzabbix -p$zabbix_pwd zabbix < images.sql &&
+mysql -uzabbix -p$zabbix_pwd zabbix < data.sql &&
 cd ~/zabbix-*/
 ./configure --enable-server --enable-agent --with-mysql --with-libcurl --with-libxml2 --with-ssh2 --with-net-snmp --with-openipmi --with-jabber
 make install
@@ -40,7 +47,7 @@ cp ~/zabbix-*/misc/init.d/debian/* /etc/init.d/
 update-rc.d zabbix-server defaults
 update-rc.d zabbix-agent defaults
 sed -i "s/^DBUser=.*$/DBUser=zabbix/" /usr/local/etc/zabbix_server.conf
-sed -i "s/^.*DBPassword=.*$/DBPassword=drFJ7xx5MNTbqJ39/" /usr/local/etc/zabbix_server.conf
+sed -i "s/^.*DBPassword=.*$/DBPassword=$zabbix_pwd/" /usr/local/etc/zabbix_server.conf
 sed -i "s/^.*FpingLocation=.*$/FpingLocation=\/usr\/bin\/fping/" /usr/local/etc/zabbix_server.conf
 sed -i "s/^.*AlertScriptsPath=.*$/AlertScriptsPath=\/var\/zabbix\/alertscripts/" /usr/local/etc/zabbix_server.conf
 sed -i "s/^.*ExternalScripts=.*$/ExternalScripts=\/var\/zabbix\/externalscripts/" /usr/local/etc/zabbix_server.conf
@@ -64,7 +71,7 @@ global \$DB;
 \$DB['PORT']     = '0';
 \$DB['DATABASE'] = 'zabbix';
 \$DB['USER']     = 'zabbix';
-\$DB['PASSWORD'] = 'drFJ7xx5MNTbqJ39';
+\$DB['PASSWORD'] = '$zabbix_pwd';
 
 // Schema name. Used for IBM DB2 and PostgreSQL.
 \$DB['SCHEMA'] = '';
