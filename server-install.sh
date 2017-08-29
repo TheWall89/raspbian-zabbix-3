@@ -42,7 +42,7 @@ mysql -uzabbix -p$zabbix_pwd zabbix < images.sql &&
 mysql -uzabbix -p$zabbix_pwd zabbix < data.sql &&
 cd ~/zabbix-*/
 ./configure --enable-server --enable-agent --with-mysql --with-libcurl --with-libxml2 --with-ssh2 --with-net-snmp --with-openipmi --with-jabber
-make install
+make install &&
 cp ~/zabbix-*/misc/init.d/debian/* /etc/init.d/
 update-rc.d zabbix-server defaults
 update-rc.d zabbix-agent defaults
