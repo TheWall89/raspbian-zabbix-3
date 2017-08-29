@@ -9,18 +9,15 @@
 #./server-install.sh
 
 apt-get update -y && apt-get upgrade -y
-apt-get install mysql-server -y
-#you are prompted to enter password here. please enter password [reverse]
-apt-get install mysql-client libmysqlclient-dev -y
-apt-get install apache2 apache2-dev -y
-apt-get install php5 php5-dev php5-gd php5-mysql -y
-apt-get install fping -y
-apt-get install libiksemel-dev -y
-apt-get install libxml2-dev -y
-apt-get install libsnmp-dev -y
-apt-get install libssh2-1-dev -y
-apt-get install libopenipmi-dev -y
-apt-get install libcurl4-openssl-dev -y
+
+# MySQL server will ask to create a password for root user.
+# Enter your password when prompted.
+apt-get install -y mysql-server mysql-client libmysqlclient-dev \
+                        apache2 apache2-dev \
+                        php5 php5-dev php5-gd php5-mysql \
+                        fping libiksemel-dev libxml2-dev libsnmp-dev \
+                        libssh2-1-dev libopenipmi-dev libcurl4-openssl-dev
+
 /usr/bin/mysqladmin -u root -preverse password 'LCq9LCFCNMZEqatm'
 mysql -h localhost -uroot -pLCq9LCFCNMZEqatm -P 3306 -s <<< 'CREATE DATABASE zabbix CHARACTER SET UTF8'
 mysql -h localhost -uroot -pLCq9LCFCNMZEqatm -P 3306 -s <<< 'GRANT ALL PRIVILEGES on zabbix.* to "zabbix"@"localhost" IDENTIFIED BY "drFJ7xx5MNTbqJ39"'
